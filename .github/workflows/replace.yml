@@ -1,4 +1,4 @@
-name: Replace HH Texture
+name: Replace HH Texture in 160
 
 on:
   workflow_dispatch:
@@ -22,14 +22,18 @@ jobs:
 
       - name: Download files
         run: |
-          gdown "1CMxmU71sf2v2x5VP6fQr8cEn44ShJXJN" -O sharedassets2.assets.split0
+          gdown "1gH-s4Eht5JgJefsdXh1VZC1UqQ_HzWQk" -O 160.zip
           gdown "12o5Mr4kIB_UReuZzL_aXnww2GSAgoxB7" -O diff_HH_Uniform_209.png
 
       - name: Replace texture
-        run: python replace_texture.py
+        run: python replace_all.py
+
+      - name: Check output
+        run: |
+          ls -la patched_160.zip
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: patched-split0
-          path: patched_split0
+          name: patched-160
+          path: patched_160.zip
