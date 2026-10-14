@@ -25,18 +25,28 @@ jobs:
         run: |
           gdown "1jBYfxhL92cEtqTTmSGF5RfqsjqDDPgn-" -O sharedassets0_merged.zip
           gdown "1lWy1xWfhzJJbom8T9tDPM1EmYm2s2PJ9" -O logos.zip
-          unzip sharedassets0_merged.zip
+          unzip -o sharedassets0_merged.zip
+          echo "=== Files in root ==="
           ls -la
+          echo "=== .assets files ==="
+          ls -la *.assets 2>/dev/null || echo "No .assets file found"
 
       - name: Replace logos
         run: python replace_logos.py
+        continue-on-error: true
 
       - name: Check output
         run: |
-          ls -la patched_sharedassets0.zip
+          echo "=== Root ==="
+          ls -la
+          echo "=== parts/ ==="
+          ls -la parts/ 2>/dev/null || echo "No parts folder"
+          echo "=== ZIP ==="
+          ls -la patched_sharedassets0.zip 2>/dev/null || echo "No ZIP"
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
+        if: hashFiles('patched_sharedassets0.zip') != ''
         with:
           name: patched-logos
           path: patched_sharedassets0.zip
