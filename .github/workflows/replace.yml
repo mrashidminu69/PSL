@@ -1,4 +1,4 @@
-name: Replace Texture
+name: Replace HH Texture
 
 on:
   workflow_dispatch:
@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
+      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Setup Python
@@ -16,67 +16,20 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Install dependencies
+      - name: Install deps
         run: |
-          pip install UnityPy pillow
-          sudo apt-get install -y astcenc
+          pip install UnityPy pillow gdown
 
-      - name: Download files from Google Drive
+      - name: Download files
         run: |
-          pip install gdown
           gdown "1CMxmU71sf2v2x5VP6fQr8cEn44ShJXJN" -O sharedassets2.assets.split0
           gdown "12o5Mr4kIB_UReuZzL_aXnww2GSAgoxB7" -O diff_HH_Uniform_209.png
 
       - name: Replace texture
-        run: |
-          python3 << 'EOF'
-          import UnityPy
-          import os
-          from PIL import Image
+        run: python replace_texture.py
 
-          SPLIT = "sharedassets2.assets.split0"
-          PNG = "diff_HH_Uniform_209.png"
-          TARGET = "diff_HH_Uniform"
-
-          new_img = Image.open(PNG).convert("RGBA")
-          print(f"[*] Nayi PNG: {new_img.size}")
-
-          env = UnityPy.load(SPLIT)
-
-          count = 0
-          for obj in env.objects:
-              if obj.type.name == "Texture2D":
-                  try:
-                      data = obj.read()
-                      if TARGET in data.m_Name:
-                          print(f"[+] Mil gayi: {data.m_Name}")
-                          print(f"    Purani format: {data.m_TextureFormat}")
-
-                          img = new_img
-                          if img.size != (data.m_Width, data.m_Height):
-                              img = img.resize((data.m_Width, data.m_Height))
-
-                          # ASTC compress karo
-                          img.save("temp.astc", format="ASTC")
-
-                          # Texture data set karo
-                          data.image = img
-                          data.save()
-                          count += 1
-                          print(f"    [✓] Replace ho gaya")
-                  except Exception as e:
-                      print(f"[!] Error: {e}")
-
-          if count > 0:
-              with open(SPLIT, 'wb') as f:
-                  f.write(env.file.save())
-              print(f"\n[✓] File save: {SPLIT}")
-          else:
-              print(f"\n[!] Nahi hua")
-          EOF
-
-      - name: Upload patched file
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: patched-split0
-          path: sharedassets2.assets.split0
+          path: patched_split0
