@@ -11,18 +11,19 @@ PART_SIZE = 1048576
 def main():
     print("[*] Shuru...")
 
-    # Merged file dhoondo
-    if not os.path.exists(MERGED):
+    # Merged file dhoondo (global variable use NA karo)
+    merged_file = MERGED
+    if not os.path.exists(merged_file):
         for f in os.listdir('.'):
             if f.endswith('.assets'):
                 print(f"[!] {MERGED} nahi mila, lekin {f} mila")
-                MERGED = f
+                merged_file = f
                 break
         else:
             print("[X] Merged file nahi mili!")
             return
 
-    print(f"[✓] Merged: {MERGED} ({os.path.getsize(MERGED)} bytes)")
+    print(f"[✓] Merged: {merged_file} ({os.path.getsize(merged_file)} bytes)")
 
     # Logos extract
     logos_dir = "logos"
@@ -34,7 +35,7 @@ def main():
     print(f"[*] Logos: {len(logos)}")
 
     # Load
-    env = UnityPy.load(MERGED)
+    env = UnityPy.load(merged_file)
 
     # Textures ki list
     textures = []
