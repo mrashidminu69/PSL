@@ -1,4 +1,4 @@
-name: Replace HH Texture in 160
+name: Replace Logos
 
 on:
   workflow_dispatch:
@@ -23,18 +23,20 @@ jobs:
 
       - name: Download files
         run: |
-          gdown "1dBDdepUC9tjPN3YA1If06NgM5QmmsGLH" -O sharedassets2_merged.assets
-          gdown "12o5Mr4kIB_UReuZzL_aXnww2GSAgoxB7" -O diff_HH_Uniform_209.png
+          gdown "1jBYfxhL92cEtqTTmSGF5RfqsjqDDPgn-" -O sharedassets0_merged.zip
+          gdown "1lWy1xWfhzJJbom8T9tDPM1EmYm2s2PJ9" -O logos.zip
+          unzip sharedassets0_merged.zip
+          ls -la
 
-      - name: Replace and split
-        run: python replace_merged.py
+      - name: Replace logos
+        run: python replace_logos.py
 
       - name: Check output
         run: |
-          ls -la patched_160_parts.zip
+          ls -la patched_sharedassets0.zip
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: patched-160-parts
-          path: patched_160_parts.zip
+          name: patched-logos
+          path: patched_sharedassets0.zip
