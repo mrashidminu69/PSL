@@ -11,7 +11,6 @@ PART_SIZE = 1048576
 def main():
     print("[*] Shuru...")
 
-    # Merged file dhoondo (global variable use NA karo)
     merged_file = MERGED
     if not os.path.exists(merged_file):
         for f in os.listdir('.'):
@@ -25,7 +24,6 @@ def main():
 
     print(f"[✓] Merged: {merged_file} ({os.path.getsize(merged_file)} bytes)")
 
-    # Logos extract
     logos_dir = "logos"
     os.makedirs(logos_dir, exist_ok=True)
     with zipfile.ZipFile(LOGOS_ZIP, 'r') as z:
@@ -34,10 +32,8 @@ def main():
     logos = [f for f in os.listdir(logos_dir) if f.lower().endswith('.png')]
     print(f"[*] Logos: {len(logos)}")
 
-    # Load
     env = UnityPy.load(merged_file)
 
-    # Textures ki list
     textures = []
     for obj in env.objects:
         if obj.type.name == "Texture2D":
@@ -48,27 +44,31 @@ def main():
                 pass
 
     print(f"[*] Total textures: {len(textures)}")
-    print("[*] Pehli 30 textures:")
-    for t in textures[:30]:
+    print("[*] Saari textures:")
+    for t in textures:
         print(f"    - {t}")
 
-    # Replace
+    # ====== ULTA CHECK: texture ka naam logo ke naam mein hai ======
     count = 0
     for obj in env.objects:
         if obj.type.name == "Texture2D":
             try:
                 data = obj.read()
-                name = data.m_Name
+                tex_name = data.m_Name
 
                 for logo in logos:
                     logo_base = os.path.splitext(logo)[0]
-                    if logo_base in name:
+
+                    # Check karo: texture ka naam logo ke naam mein hai
+                    # Jaise: tex_name = "AS", logo_base = "AS_35" -> "AS" in "AS_35" = True
+                    if tex_name in logo_base:
                         png_path = os.path.join(logos_dir, logo)
                         new_img = Image.open(png_path).convert("RGBA")
+
                         if new_img.size != (data.m_Width, data.m_Height):
                             new_img = new_img.resize((data.m_Width, data.m_Height))
 
-                        print(f"[+] Replacing: {name}  <-  {logo}")
+                        print(f"[+] Replacing: {tex_name}  <-  {logo}")
                         try:
                             data.image = new_img
                             data.save()
@@ -85,7 +85,6 @@ def main():
         print("[!] Koi logo nahi mila")
         return
 
-    # Save
     patched = "sharedassets0_merged_patched.assets"
     with open(patched, 'wb') as f:
         f.write(env.file.save())
