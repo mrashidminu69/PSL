@@ -15,14 +15,10 @@ def main():
     if not os.path.exists(merged_file):
         for f in os.listdir('.'):
             if f.endswith('.assets'):
-                print(f"[!] {MERGED} nahi mila, lekin {f} mila")
                 merged_file = f
                 break
-        else:
-            print("[X] Merged file nahi mili!")
-            return
 
-    print(f"[✓] Merged: {merged_file} ({os.path.getsize(merged_file)} bytes)")
+    print(f"[✓] Merged: {merged_file}")
 
     logos_dir = "logos"
     os.makedirs(logos_dir, exist_ok=True)
@@ -34,47 +30,42 @@ def main():
 
     env = UnityPy.load(merged_file)
 
-    textures = []
-    for obj in env.objects:
-        if obj.type.name == "Texture2D":
-            try:
-                data = obj.read()
-                textures.append(data.m_Name)
-            except:
-                pass
-
-    print(f"[*] Total textures: {len(textures)}")
-    print("[*] Saari textures:")
-    for t in textures:
-        print(f"    - {t}")
-
-    # ====== ULTA CHECK: texture ka naam logo ke naam mein hai ======
     count = 0
     for obj in env.objects:
         if obj.type.name == "Texture2D":
             try:
                 data = obj.read()
                 tex_name = data.m_Name
+                tex_w, tex_h = data.m_Width, data.m_Height
 
                 for logo in logos:
                     logo_base = os.path.splitext(logo)[0]
 
-                    # Check karo: texture ka naam logo ke naam mein hai
-                    # Jaise: tex_name = "AS", logo_base = "AS_35" -> "AS" in "AS_35" = True
+                    # Match: texture ka naam logo ke naam mein hai
                     if tex_name in logo_base:
                         png_path = os.path.join(logos_dir, logo)
-                        new_img = Image.open(png_path).convert("RGBA")
+                        logo_img = Image.open(png_path).convert("RGBA")
 
-                        if new_img.size != (data.m_Width, data.m_Height):
-                            new_img = new_img.resize((data.m_Width, data.m_Height))
+                        # Nayi canvas banao (texture ke size ka)
+                        canvas = Image.new("RGBA", (tex_w, tex_h), (0, 0, 0, 0))
 
-                        print(f"[+] Replacing: {tex_name}  <-  {logo}")
-                        try:
-                            data.image = new_img
-                            data.save()
-                            count += 1
-                        except Exception as e:
-                            print(f"[!] Save error: {e}")
+                        # Logo ko center mein fit karo (aspect ratio maintain karte hue)
+                        logo_w, logo_h = logo_img.size
+                        ratio = min(tex_w / logo_w, tex_h / logo_h)
+                        new_w = int(logo_w * ratio)
+                        new_h = int(logo_h * ratio)
+                        logo_resized = logo_img.resize((new_w, new_h), Image.LANCZOS)
+
+                        # Center mein paste karo
+                        x = (tex_w - new_w) // 2
+                        y = (tex_h - new_h) // 2
+                        canvas.paste(logo_resized, (x, y), logo_resized)
+
+                        print(f"[+] Replacing: {tex_name} ({tex_w}x{tex_h})  <-  {logo} ({logo_w}x{logo_h})")
+
+                        data.image = canvas
+                        data.save()
+                        count += 1
                         break
             except Exception as e:
                 print(f"[!] Error: {e}")
