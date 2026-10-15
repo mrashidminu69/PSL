@@ -23,8 +23,9 @@ jobs:
 
       - name: Download level files
         run: |
-          gdown "LEVEL1_SPLIT0_FILE_ID" -O level1.split0
-          gdown "LEVEL1_SPLIT1_FILE_ID" -O level1.split1
+          gdown "1g0zldBIodDihooCkDzXKGBU4G7lB4GyQ" -O level1.split0
+          gdown "1-S0DLqsSiRlyar87_cVwAWvpqW-Sv8pY" -O level1.split1
+          ls -la level1.split*
 
       - name: Replace frame
         run: python replace_frame.py
