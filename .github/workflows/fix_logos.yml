@@ -23,10 +23,11 @@ jobs:
 
       - name: Download files
         run: |
-          gdown "APK_FILE_ID" -O com.nextwave.bigbash.apk
-          gdown "OBB_FILE_ID" -O main.13.com.nextwave.bigbash.obb
-          gdown "LOGOS_ZIP_ID" -O logos.zip
+          gdown "1bSA7WcWnQ1H-uiJzng2cdB5-ntY-s9Xh" -O com.nextwave.bigbash.apk
+          gdown "1HK5ZpmhdjAa3qL31aGIBXzGMflssk0zC" -O main.13.com.nextwave.bigbash.obb
+          gdown "1GGdx3H0rTCOM5kI8EsvqRfc3Y7j6KV9f" -O logos.zip
           unzip -o logos.zip
+          ls -la
 
       - name: Patch logos
         run: python bbc_logo_fix.py --apk com.nextwave.bigbash.apk --obb main.13.com.nextwave.bigbash.obb --logos logos --out patched
