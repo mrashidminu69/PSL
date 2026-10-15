@@ -1,7 +1,6 @@
 import UnityPy
 import os
 import zipfile
-import gdown
 
 # ====== FILES ======
 LEVEL_FILES = ["level1.split0", "level1.split1"]
