@@ -1,0 +1,50 @@
+name: Fix Logos
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install deps
+        run: |
+          pip install UnityPy pillow gdown
+
+      - name: Download files
+        run: |
+          gdown "APK_FILE_ID" -O com.nextwave.bigbash.apk
+          gdown "OBB_FILE_ID" -O main.13.com.nextwave.bigbash.obb
+          gdown "LOGOS_ZIP_ID" -O logos.zip
+          unzip -o logos.zip
+
+      - name: Patch logos
+        run: python bbc_logo_fix.py --apk com.nextwave.bigbash.apk --obb main.13.com.nextwave.bigbash.obb --logos logos --out patched
+
+      - name: Check output
+        run: |
+          echo "=== APK patched files ==="
+          ls -la patched/apk/assets/bin/Data/ 2>/dev/null || echo "No APK patches"
+          echo "=== OBB patched files ==="
+          ls -la patched/obb/assets/bin/Data/ 2>/dev/null || echo "No OBB patches"
+
+      - name: Zip output
+        run: |
+          cd patched
+          zip -r ../patched_logos.zip .
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: patched-logos
+          path: patched_logos.zip
