@@ -1,4 +1,4 @@
-name: Replace Frame
+name: Patch Logos
 
 on:
   workflow_dispatch:
@@ -21,21 +21,31 @@ jobs:
         run: |
           pip install UnityPy pillow gdown
 
-      - name: Download level files
+      - name: Download files
         run: |
-          gdown "1g0zldBIodDihooCkDzXKGBU4G7lB4GyQ" -O level1.split0
-          gdown "1-S0DLqsSiRlyar87_cVwAWvpqW-Sv8pY" -O level1.split1
-          ls -la level1.split*
+          gdown "1ovduNPBAE-I6aFqI-J3c43lO69YgmBWh" -O sharedassets0_merged.assets
+          gdown "1GGdx3H0rTCOM5kI8EsvqRfc3Y7j6KV9f" -O logos.zip
+          unzip -o logos.zip
+          ls -la
 
-      - name: Replace frame
-        run: python replace_frame.py
+      - name: Patch logos
+        run: python patch_logos.py sharedassets0_merged.assets patched_sharedassets0.assets logos/
 
-      - name: Check output
+      - name: Split into 25 parts
         run: |
-          ls -la patched_level1.zip
+          mkdir -p new_splits
+          split -b 1048576 -d -a 1 patched_sharedassets0.assets new_splits/sharedassets0.assets.split
+          cd new_splits/
+          for f in sharedassets0.assets.split*; do
+              num=$(echo $f | sed 's/.*split//')
+              mv "$f" "sharedassets0.assets.split$num"
+          done
+          cd ..
+          ls -la new_splits/
+          zip -r patched_splits.zip new_splits/
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: patched-level1
-          path: patched_level1.zip
+          name: patched-splits
+          path: patched_splits.zip
