@@ -42,9 +42,12 @@ jobs:
           cd new_splits/
           for f in sharedassets0.assets.split*; do
               num=$(echo $f | sed 's/.*split//')
-              num=$(echo $num | sed 's/^0*//')
-              [ -z "$num" ] && num=0
-              mv "$f" "sharedassets0.assets.split$num"
+              new_num=$(echo $num | sed 's/^0*//')
+              [ -z "$new_num" ] && new_num=0
+              new_name="sharedassets0.assets.split$new_num"
+              if [ "$f" != "$new_name" ]; then
+                  mv "$f" "$new_name"
+              fi
           done
           cd ..
           echo "=== Total parts ==="
