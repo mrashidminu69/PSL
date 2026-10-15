@@ -21,18 +21,15 @@ jobs:
         run: |
           pip install UnityPy pillow gdown
 
-      - name: Download files
+      - name: Download Pakistan.zip
         run: |
-          gdown "1bSA7WcWnQ1H-uiJzng2cdB5-ntY-s9Xh" -O com.nextwave.bigbash.apk
-          gdown "1HK5ZpmhdjAa3qL31aGIBXzGMflssk0zC" -O main.13.com.nextwave.bigbash.obb
-          gdown "1GGdx3H0rTCOM5kI8EsvqRfc3Y7j6KV9f" -O logos.zip
-          mkdir -p logos
-          unzip -o logos.zip -d logos
-          echo "=== logos folder ==="
-          ls -la logos/
+          gdown "1INqEPQBADPT-T5VGbZcnjcUWL5gGi5FK" -O Pakistan_full.zip
+          unzip -o Pakistan_full.zip
+          ls -la Pakistan/
 
       - name: Patch logos
-        run: python bbc_logo_fix.py --apk com.nextwave.bigbash.apk --obb main.13.com.nextwave.bigbash.obb --logos logos --out patched
+        run: |
+          python bbc_logo_fix.py --apk Pakistan/com.nextwave.bigbash.apk --obb Pakistan/main.13.com.nextwave.bigbash.obb --logos Pakistan --out patched
 
       - name: Check output
         run: |
@@ -45,6 +42,8 @@ jobs:
         run: |
           cd patched
           zip -r ../patched_logos.zip .
+          cd ..
+          ls -la patched_logos.zip
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
