@@ -31,16 +31,25 @@ jobs:
       - name: Patch logos
         run: python patch_logos.py sharedassets0_merged.assets patched_sharedassets0.assets logos/
 
+      - name: Check patched file
+        run: |
+          ls -la patched_sharedassets0.assets
+
       - name: Split into 25 parts
         run: |
           mkdir -p new_splits
-          split -b 1048576 -d -a 1 patched_sharedassets0.assets new_splits/sharedassets0.assets.split
+          split -b 1048576 -d -a 2 patched_sharedassets0.assets new_splits/sharedassets0.assets.split
           cd new_splits/
           for f in sharedassets0.assets.split*; do
               num=$(echo $f | sed 's/.*split//')
+              num=$(echo $num | sed 's/^0*//')
+              [ -z "$num" ] && num=0
               mv "$f" "sharedassets0.assets.split$num"
           done
           cd ..
+          echo "=== Total parts ==="
+          ls new_splits/ | wc -l
+          echo "=== Files ==="
           ls -la new_splits/
           zip -r patched_splits.zip new_splits/
 
